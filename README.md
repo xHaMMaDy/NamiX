@@ -47,7 +47,7 @@ If they aren't found, built-in fallback name lists will be used, also you can us
 ## 🖼️ Screenshots
 
 ```
-![Preview](screenshots/preview.png)
+![Preview](https://i.imgur.com/YKDE1lu.png)
 ```
 
 ---
