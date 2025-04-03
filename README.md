@@ -35,7 +35,7 @@ python main.py
 
 ## 📂 Optional Files
 
-You may include these in your `/app` folder:
+You may include these in your `/assets` folder:
 
 - `FNAME.txt`: Custom list of first names (one per line)
 - `LNAME.txt`: Custom list of last names (one per line)
