@@ -1,21 +1,13 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from ui_main import Ui_MainWindow
-from username_generator import load_names, generate_usernames
+from username_generator import generate_usernames  # load_names removed
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
-        # Auto-load name files
-        try:
-            self.first_names = load_names('FName.txt')
-            self.last_names = load_names('LName.txt')
-        except Exception as e:
-            QMessageBox.critical(self, "Load Error", str(e))
-            self.first_names, self.last_names = [], []
 
         # Connect signals
         self.ui.generateButton.clicked.connect(self.handle_generate)
@@ -30,8 +22,8 @@ class MainWindow(QMainWindow):
             uppercase = self.ui.uppercaseCheck.isChecked()
 
             usernames = generate_usernames(
-                self.first_names,
-                self.last_names,
+                self.ui.first_names,
+                self.ui.last_names,
                 symbols,
                 count,
                 style,

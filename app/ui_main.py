@@ -5,26 +5,9 @@ import json
 import csv
 
 class Ui_MainWindow(object):
-    default_first_names = '''Maya
-Bahaa
-Fadel
-Muslim
-Mohammad
-Naji
-Yasmine
-Adnan
-Mohameed
-Mansour
-...'''.splitlines()
-    default_last_names = '''Bahaa
-Fadel
-Muslim
-Mohammad
-Naji
-Adnan
-Mohameed
-Mansour
-...'''.splitlines()
+    # Default names will be loaded in setupUi
+    default_first_names = []
+    default_last_names = []
 
     def choose_name_file(self, role):
         path, _ = QFileDialog.getOpenFileName(None, f"Choose {role} name file", "", "Text Files (*.txt)")
@@ -178,6 +161,35 @@ Mansour
         self.tabs = QTabWidget()
         self.layout.addWidget(self.tabs)
 
+        # Load default names
+        import os
+        from PySide6.QtWidgets import QMessageBox
+        base_dir = os.path.dirname(__file__)
+        fname_path = os.path.abspath(os.path.join(base_dir, "..", "assets", "FNAME.txt"))
+        lname_path = os.path.abspath(os.path.join(base_dir, "..", "assets", "LNAME.txt"))
+
+        try:
+            with open(fname_path, "r", encoding="utf-8") as f:
+                self.default_first_names = [line.strip() for line in f if line.strip()]
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Load Error")
+            msg.setText(f"Failed to load FNAME.txt from ../assets/ folder. Error: {str(e)}")
+            msg.setIcon(QMessageBox.Critical)
+            msg.exec()
+            self.default_first_names = ['Maya', 'Bahaa', 'Fadel', 'Muslim', 'Mohammad', 'Naji', 'Yasmine', 'Adnan', 'Mohameed', 'Mansour']
+
+        try:
+            with open(lname_path, "r", encoding="utf-8") as f:
+                self.default_last_names = [line.strip() for line in f if line.strip()]
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setWindowTitle("Load Error")
+            msg.setText(f"Failed to load LNAME.txt from ../assets/ folder. Error: {str(e)}")
+            msg.setIcon(QMessageBox.Critical)
+            msg.exec()
+            self.default_last_names = ['Bahaa', 'Fadel', 'Muslim', 'Mohammad', 'Naji', 'Adnan', 'Mohameed', 'Mansour']
+
         # Tab 1: Settings
         self.first_names = self.default_first_names
         self.last_names = self.default_last_names
@@ -232,6 +244,7 @@ Mansour
         self.preview_controls = QHBoxLayout()
 
         self.generateButton = QPushButton(qta.icon('fa5s.cogs'), " Generate Usernames")
+        self.generateButton.clicked.connect(self.generate_usernames)
         self.preview_controls.addWidget(self.generateButton)
 
         self.previewList = QListWidget()
@@ -245,8 +258,64 @@ Mansour
         self.copyAllButton.clicked.connect(lambda: self.copy_all())
         self.preview_controls.addWidget(self.copyAllButton)
         self.preview_layout.addLayout(self.preview_controls)
+    def generate_usernames(self):
+        import random
+        from PySide6.QtWidgets import QMessageBox
+
+        count = self.countSpinBox.value()
+        symbols = self.symbolsEdit.text().split()
+        style = self.styleCombo.currentText()
+        include_numbers = self.numbersCheck.isChecked()
+        lowercase = self.lowercaseCheck.isChecked()
+        uppercase = self.uppercaseCheck.isChecked()
+
+        if not self.first_names or not self.last_names:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText("First or last name list is empty. Cannot generate usernames.")
+            msg.setIcon(QMessageBox.Warning)
+            msg.exec()
+            return
+
+        usernames = []
+        for _ in range(count):
+            first = random.choice(self.first_names)
+            last = random.choice(self.last_names)
+            f = first[0] if first else ''
+            style_map = {
+                'first_last': f"{first}_{last}",
+                'last.first': f"{last}.{first}",
+                'fLast': f"{f}{last}",
+                'f.Last': f"{f}.{last}",
+                'f.last+num': f"{f}.{last}{random.randint(1, 999)}",
+                'firstlast': f"{first}{last}",
+                'lastfirst': f"{last}{first}",
+                'first.last': f"{first}.{last}",
+                'firstL': f"{first}{last[0] if last else ''}",
+                'firstLnum': f"{first}{last[0] if last else ''}{random.randint(10,99)}",
+                'random': random.choice([
+                f"{first}{random.choice(symbols)}{last}",
+                f"{f}{last}{random.randint(1,999)}",
+                f"{first}{last[0] if last else ''}"
+            ]) if first and last and symbols else f"{first}_{last}"
+            }
+            uname = style_map.get(style, f"{first}_{last}")
+            if include_numbers and style not in ['f.last+num', 'firstLnum']:
+                uname += str(random.randint(1, 999))
+            if lowercase:
+                uname = uname.lower()
+            if uppercase:
+                uname = uname.upper()
+            usernames.append(uname)
+
+        self.previewList.clear()
+        self.previewList.addItems(usernames)
 
         # Tab 3: Export
+        if hasattr(self, 'tab_export'):
+            self.tabs.setCurrentWidget(self.tab_preview)
+            return
+
         self.tab_export = QWidget()
         self.tabs.addTab(self.tab_export, "💾 Export")
         self.export_layout = QGridLayout(self.tab_export)
