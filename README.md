@@ -49,6 +49,15 @@ If they aren't found, built-in fallback name lists will be used, also you can us
 
 ![Preview](https://i.imgur.com/YKDE1lu.png)
 
+<table>
+  <tr>
+    <td><img src="https://i.imgur.com/YKDE1lu.png" width="300"></td>
+    <td><img src="https://i.imgur.com/RCUYjTy.png" width="300"></td>
+    <td><img src="https://i.imgur.com/KFBIP3f.png" width="300"></td>
+  </tr>
+</table>
+
+
 
 ---
 
